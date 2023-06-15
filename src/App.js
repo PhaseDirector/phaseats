@@ -1,5 +1,11 @@
+import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import Candidates from './components/Candidates';
+import Clients from './components/Clients';
+import Files from './components/Files';
+import Jobs from './components/Jobs';
+import SearchTab from './components/Searchtab';
 
 function App() {
   return (
@@ -18,8 +24,16 @@ function App() {
           Learn React
         </a>
       </header>
+
+      {/* Render your components */}
+      <Candidates />
+      <Clients />
+      <Files />
+      <Jobs />
+      <SearchTab />
     </div>
   );
 }
 
 export default App;
+
