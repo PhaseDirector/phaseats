@@ -58,7 +58,7 @@ const Candidates = () => {
 
   return (
     <div>
-      <h2>Candidates</h2>
+      <h2>Candidates!</h2>
       <div>
         <label htmlFor="searchQuery">Search Candidate:</label>
         <input
