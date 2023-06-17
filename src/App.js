@@ -5,16 +5,16 @@ import Clients from './components/Clients';
 import Files from './components/Files';
 import Jobs from './components/Jobs';
 import CreateClient from './components/CreateClient';
-import CreateCandidate from './components/CreateCandidate'; 
-import SearchTab from './components/SearchTab'; 
-import CreateJob from './components/CreateJob'; 
+import CreateCandidate from './components/CreateCandidate';
+import SearchTab from './components/SearchTab';
+import CreateJob from './components/CreateJob';
 
 function App() {
   return (
     <Router>
       <div className="App">
         <h1 style={{ textAlign: 'center' }}>Phase ATS</h1>
-        
+
         {/* Navigation Links */}
         <nav style={{ textAlign: 'center' }}>
           <ul style={{ display: 'inline-block', listStyle: 'none', padding: 0 }}>
@@ -34,10 +34,10 @@ function App() {
               <Link to="/search">Search</Link>
             </li>
             <li style={{ display: 'inline-block', marginRight: '10px' }}>
-              <Link to="/create">Create Client</Link>
+              <Link to="/createclient">Create Client</Link>
             </li>
             <li style={{ display: 'inline-block', marginRight: '10px' }}>
-              <Link to="/createcan">Create Candidate</Link>
+              <Link to="/createcandidate">Create Candidate</Link>
             </li>
             <li style={{ display: 'inline-block', marginRight: '10px' }}>
               <Link to="/createjob">Create Job</Link>
@@ -52,8 +52,8 @@ function App() {
           <Route exact path="/files" component={Files} />
           <Route exact path="/jobs" component={Jobs} />
           <Route exact path="/search" component={SearchTab} />
-          <Route exact path="/create" component={CreateClient} />
-          <Route exact path="/createcan" component={CreateCandidate} />
+          <Route exact path="/createclient" component={CreateClient} />
+          <Route exact path="/createcandidate" component={CreateCandidate} />
           <Route exact path="/createjob" component={CreateJob} />
         </Switch>
       </div>

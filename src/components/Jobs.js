@@ -2,24 +2,49 @@ import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 
 const Jobs = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [jobs, setJobs] = useState([]);
   const history = useHistory();
+  const [jobs, setJobs] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Dummy job data for demonstration
+  // Sample array of jobs (replace with your actual API calls)
   const dummyJobs = [
-    { id: '001', title: 'Job A', description: 'Description for Job A' },
-    { id: '002', title: 'Job B', description: 'Description for Job B' },
-    { id: '003', title: 'Job C', description: 'Description for Job C' },
-    { id: '004', title: 'Job D', description: 'Description for Job D' },
-    { id: '005', title: 'Job E', description: 'Description for Job E' },
-    // Add more jobs as needed
+    {
+      id: 1,
+      title: 'Job 1',
+      description: 'Lorem ipsum dolor sit amet',
+      location: 'New York',
+      requirements: 'Lorem ipsum dolor sit amet'
+    },
+    {
+      id: 2,
+      title: 'Job 2',
+      description: 'Lorem ipsum dolor sit amet',
+      location: 'San Francisco',
+      requirements: 'Lorem ipsum dolor sit amet'
+    },
+    {
+      id: 3,
+      title: 'Job 3',
+      description: 'Lorem ipsum dolor sit amet',
+      location: 'London',
+      requirements: 'Lorem ipsum dolor sit amet'
+    }
   ];
 
   useEffect(() => {
-    // Simulating API call to fetch jobs
-    // Replace this with your actual API call to fetch jobs
-    setJobs(dummyJobs);
+    const fetchJobs = async () => {
+      try {
+        // Replace with your actual API call to fetch jobs
+        // const response = await fetch('/api/jobs');
+        // const data = await response.json();
+        // setJobs(data);
+        setJobs(dummyJobs);
+      } catch (error) {
+        console.error('Error fetching jobs:', error);
+      }
+    };
+
+    fetchJobs();
   }, []);
 
   const handleSearchQueryChange = (e) => {
@@ -28,13 +53,13 @@ const Jobs = () => {
 
     // Filter jobs based on partial matches
     const filteredJobs = dummyJobs.filter((job) => {
-      const { id, title, description } = job;
+      const { title, description, location } = job;
       const lowerCaseQuery = query.toLowerCase();
 
       return (
-        id.toLowerCase().includes(lowerCaseQuery) ||
         title.toLowerCase().includes(lowerCaseQuery) ||
-        description.toLowerCase().includes(lowerCaseQuery)
+        description.toLowerCase().includes(lowerCaseQuery) ||
+        location.toLowerCase().includes(lowerCaseQuery)
       );
     });
 
@@ -43,6 +68,7 @@ const Jobs = () => {
 
   const handleClearSearch = () => {
     setSearchQuery('');
+    // Reset jobs to the original list
     setJobs(dummyJobs);
   };
 
@@ -59,7 +85,7 @@ const Jobs = () => {
 
   return (
     <div>
-      <h2>Jobs</h2>
+      <h2>Jobs!</h2>
       <div>
         <label htmlFor="searchQuery">Search Job:</label>
         <input
@@ -78,6 +104,8 @@ const Jobs = () => {
             <th>Job ID</th>
             <th>Title</th>
             <th>Description</th>
+            <th>Location</th>
+            <th>Requirements</th>
           </tr>
         </thead>
         <tbody>
@@ -94,6 +122,8 @@ const Jobs = () => {
                 </a>
               </td>
               <td>{job.description}</td>
+              <td>{job.location}</td>
+              <td>{job.requirements}</td>
             </tr>
           ))}
         </tbody>
@@ -103,5 +133,6 @@ const Jobs = () => {
 };
 
 export default Jobs;
+
 
 

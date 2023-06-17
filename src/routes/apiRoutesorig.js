@@ -4,10 +4,10 @@ const { Pool } = require('pg');
 const router = express.Router();
 // Create a connection pool to the PostgreSQL database
 const pool = new Pool({
-  user: 'usernamephase',
-  host: 'localhost',
-  database: 'PhaseATS',
-  password: 'password',
+  user: 'your_username',
+  host: 'your_host',
+  database: 'your_database',
+  password: 'your_password',
   port: 5432, // or your PostgreSQL port
 });
 

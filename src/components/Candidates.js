@@ -2,21 +2,58 @@ import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 
 const Candidates = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [candidates, setCandidates] = useState([]);
   const history = useHistory();
+  const [candidates, setCandidates] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Dummy candidate data for demonstration
+  // Sample array of candidates (replace with your actual API calls)
   const dummyCandidates = [
-    { id: '001', firstName: 'John', lastName: 'Doe', email: 'john@example.com', phone: '1234567890', type: 'Project Manager' },
-    { id: '002', firstName: 'Jane', lastName: 'Smith', email: 'jane@example.com', phone: '9876543210', type: 'Developer' },
-    // Add more candidates as needed
+    {
+      id: 1,
+      firstName: 'John',
+      lastName: 'Doe',
+      address: '123 Main St',
+      phone: '1234567890',
+      email: 'john@example.com',
+      notes: 'Lorem ipsum dolor sit amet',
+      type: 'Project Manager'
+    },
+    {
+      id: 2,
+      firstName: 'Jane',
+      lastName: 'Smith',
+      address: '456 Elm St',
+      phone: '9876543210',
+      email: 'jane@example.com',
+      notes: 'Lorem ipsum dolor sit amet',
+      type: 'Developer'
+    },
+    {
+      id: 3,
+      firstName: 'Bob',
+      lastName: 'Johnson',
+      address: '789 Oak St',
+      phone: '5678901234',
+      email: 'bob@example.com',
+      notes: 'Lorem ipsum dolor sit amet',
+      type: 'Business Analyst'
+    }
   ];
 
   useEffect(() => {
-    // Simulating API call to fetch candidates
-    // Replace this with your actual API call to fetch candidates
-    setCandidates(dummyCandidates);
+    const fetchCandidates = async () => {
+      try {
+        // Replace with your actual API call to fetch candidates
+        // const response = await fetch('/api/candidates');
+        // const data = await response.json();
+        // setCandidates(data);
+        setCandidates(dummyCandidates);
+      } catch (error) {
+        console.error('Error fetching candidates:', error);
+      }
+    };
+
+    fetchCandidates();
   }, []);
 
   const handleSearchQueryChange = (e) => {
@@ -25,15 +62,14 @@ const Candidates = () => {
 
     // Filter candidates based on partial matches
     const filteredCandidates = dummyCandidates.filter((candidate) => {
-      const { firstName, lastName, email, phone, type } = candidate;
+      const { firstName, lastName, email, phone } = candidate;
       const lowerCaseQuery = query.toLowerCase();
 
       return (
         firstName.toLowerCase().includes(lowerCaseQuery) ||
         lastName.toLowerCase().includes(lowerCaseQuery) ||
         email.toLowerCase().includes(lowerCaseQuery) ||
-        phone.toLowerCase().includes(lowerCaseQuery) ||
-        type.toLowerCase().includes(lowerCaseQuery)
+        phone.toLowerCase().includes(lowerCaseQuery)
       );
     });
 
@@ -42,13 +78,14 @@ const Candidates = () => {
 
   const handleClearSearch = () => {
     setSearchQuery('');
+    // Reset candidates to the original list
     setCandidates(dummyCandidates);
   };
 
   const handleAddCandidate = () => {
     // Save candidate details and perform necessary actions
     // For now, let's just navigate to the CreateCandidate page
-    history.push('/createcan');
+    history.push('/createcandidate');
   };
 
   const handleCandidateClick = (candidateId) => {
@@ -77,8 +114,10 @@ const Candidates = () => {
             <th>Candidate ID</th>
             <th>First Name</th>
             <th>Last Name</th>
-            <th>Email</th>
+            <th>Address</th>
             <th>Phone</th>
+            <th>Email</th>
+            <th>Notes</th>
             <th>Type</th>
           </tr>
         </thead>
@@ -96,10 +135,12 @@ const Candidates = () => {
                 </a>
               </td>
               <td>{candidate.lastName}</td>
-              <td>{candidate.email}</td>
+              <td>{candidate.address}</td>
               <td>{candidate.phone}</td>
+              <td>{candidate.email}</td>
+              <td>{candidate.notes}</td>
               <td>{candidate.type}</td>
-              </tr>
+            </tr>
           ))}
         </tbody>
       </table>
@@ -108,6 +149,9 @@ const Candidates = () => {
 };
 
 export default Candidates;
+
+
+
 
 
 
