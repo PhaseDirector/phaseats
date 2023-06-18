@@ -1,7 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+const { Entity, PrimaryGeneratedColumn, Column } = require('typeorm');
 
 @Entity()
-export class Candidatesent {
+class Candidatesent {
   @PrimaryGeneratedColumn()
   id;
 
@@ -26,3 +26,7 @@ export class Candidatesent {
   @Column()
   type;
 }
+
+module.exports = {
+  Candidatesent,
+};

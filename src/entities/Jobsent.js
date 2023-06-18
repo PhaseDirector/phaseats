@@ -1,7 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+const { Entity, PrimaryGeneratedColumn, Column } = require('typeorm');
 
 @Entity()
-export class Jobsent {
+class Jobsent {
   @PrimaryGeneratedColumn()
   id;
 
@@ -17,3 +17,8 @@ export class Jobsent {
   @Column()
   requirements;
 }
+
+module.exports = {
+  Jobsent,
+};
+

@@ -1,19 +1,46 @@
 const express = require('express');
 const app = express();
-const port = 8000;
+const cors = require('cors');
 const apiRoutes = require('../routes/apiRoutes');
 
-app.use(express.json()); // Parse JSON bodies
 
+
+
+
+
+
+
+app.use(express.json());
+app.use(cors());
+
+// Define route handler for the root endpoint
 app.get('/', (req, res) => {
-  res.send('Hello from the server!');
+  res.send('Welcome to the PhaseATS API!');
 });
 
-// API routes
+// Mount the API routes
 app.use('/api', apiRoutes);
 
+// ...
+
+// Error handler middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(500).json({ error: 'Internal Server Error' });
+});
+
+// ...
+
+
+
+
+// Start the server
+const port = 8000;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
-module.exports = app; // Export the 'app' variable
+
+
+
+

@@ -2,10 +2,10 @@ module.exports = {
     type: 'postgres',
     host: 'localhost',
     port: 5432,
-    username: 'usernamephase',
+    username: 'postgres',
     password: 'password',
     database: 'PhaseATS',
-    entities: ['src/entities/**/*.js'], // Path to your entity files
-    synchronize: true, // Auto-create database tables (for development only)
+    entities: ['src/entities/*.js'],
+    synchronize: true,
   };
   
