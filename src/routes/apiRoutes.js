@@ -92,86 +92,6 @@ router.delete('/candidates/:id', (req, res) => {
   });
 });
 
-// Retrieve all clients
-router.get('/clients', (req, res) => {
-  pool.query('SELECT * FROM clients', (error, result) => {
-    if (error) {
-      console.error('Error executing query:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    } else {
-      console.log('Query executed successfully:', result.rows);
-      res.status(200).json(result.rows);
-    }
-  });
-});
-
-// Retrieve a specific client by ID
-router.get('/clients/:id', (req, res) => {
-  const { id } = req.params;
-  pool.query('SELECT * FROM clients WHERE client_id = $1', [id], (error, result) => {
-    if (error) {
-      console.error('Error executing query:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    } else if (result.rows.length === 0) {
-      res.status(404).json({ error: 'Client not found' });
-    } else {
-      res.status(200).json(result.rows[0]);
-    }
-  });
-});
-
-// Create a new client
-router.post('/clients', (req, res) => {
-  const { client_name, address, website, notes } = req.body;
-  pool.query(
-    'INSERT INTO clients (client_name, address, website, notes) VALUES ($1, $2, $3, $4) RETURNING *',
-    [client_name, address, website, notes],
-    (error, result) => {
-      if (error) {
-        console.error('Error executing query:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-      } else {
-        res.status(201).json(result.rows[0]);
-      }
-    }
-  );
-});
-
-// Update an existing client
-router.put('/clients/:id', (req, res) => {
-  const { id } = req.params;
-  const { client_name, address, website, notes } = req.body;
-  pool.query(
-    'UPDATE clients SET client_name = $1, address = $2, website = $3, notes = $4 WHERE client_id = $5 RETURNING *',
-    [client_name, address, website, notes, id],
-    (error, result) => {
-      if (error) {
-        console.error('Error executing query:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-      } else if (result.rows.length === 0) {
-        res.status(404).json({ error: 'Client not found' });
-      } else {
-        res.status(200).json(result.rows[0]);
-      }
-    }
-  );
-});
-
-// Delete a client
-router.delete('/clients/:id', (req, res) => {
-  const { id } = req.params;
-  pool.query('DELETE FROM clients WHERE client_id = $1', [id], (error, result) => {
-    if (error) {
-      console.error('Error executing query:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    } else if (result.rowCount === 0) {
-      res.status(404).json({ error: 'Client not found' });
-    } else {
-      res.status(204).end();
-    }
-  });
-});
-
 // Retrieve all jobs
 router.get('/jobs', (req, res) => {
   pool.query('SELECT * FROM jobs', (error, result) => {
@@ -202,10 +122,10 @@ router.get('/jobs/:id', (req, res) => {
 
 // Create a new job
 router.post('/jobs', (req, res) => {
-  const { job_title, description, location, requirements, client_id } = req.body;
+  const { job_title, description, location, requirements } = req.body;
   pool.query(
-    'INSERT INTO jobs (job_title, description, location, requirements, client_id) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-    [job_title, description, location, requirements, client_id],
+    'INSERT INTO jobs (job_title, description, location, requirements) VALUES ($1, $2, $3, $4) RETURNING *',
+    [job_title, description, location, requirements],
     (error, result) => {
       if (error) {
         console.error('Error executing query:', error);
@@ -220,10 +140,10 @@ router.post('/jobs', (req, res) => {
 // Update an existing job
 router.put('/jobs/:id', (req, res) => {
   const { id } = req.params;
-  const { job_title, description, location, requirements, client_id } = req.body;
+  const { job_title, description, location, requirements } = req.body;
   pool.query(
-    'UPDATE jobs SET job_title = $1, description = $2, location = $3, requirements = $4, client_id = $5 WHERE job_id = $6 RETURNING *',
-    [job_title, description, location, requirements, client_id, id],
+    'UPDATE jobs SET job_title = $1, description = $2, location = $3, requirements = $4 WHERE job_id = $5 RETURNING *',
+    [job_title, description, location, requirements, id],
     (error, result) => {
       if (error) {
         console.error('Error executing query:', error);
@@ -237,19 +157,5 @@ router.put('/jobs/:id', (req, res) => {
   );
 });
 
-// Delete a job
-router.delete('/jobs/:id', (req, res) => {
-  const { id } = req.params;
-  pool.query('DELETE FROM jobs WHERE job_id = $1', [id], (error, result) => {
-    if (error) {
-      console.error('Error executing query:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    } else if (result.rowCount === 0) {
-      res.status(404).json({ error: 'Job not found' });
-    } else {
-      res.status(204).end();
-    }
-  });
-});
-
 module.exports = router;
+

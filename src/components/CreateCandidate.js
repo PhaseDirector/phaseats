@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import axios from 'axios';
 
 const CreateCandidate = () => {
   const [firstName, setFirstName] = useState('');
@@ -39,10 +40,23 @@ const CreateCandidate = () => {
     setType(e.target.value);
   };
 
-  const handleCreateCandidate = () => {
-    // Save candidate details and perform necessary actions
-    // For now, let's just navigate back to the Candidates page
-    history.push('/candidates');
+  const handleCreateCandidate = async () => {
+    try {
+      const newCandidate = {
+        first_name: firstName,
+        last_name: lastName,
+        address,
+        phone,
+        email,
+        notes,
+        type,
+      };
+
+      await axios.post('http://localhost:8000/api/candidates', newCandidate);
+      history.push('/candidates');
+    } catch (error) {
+      console.error('Error creating candidate:', error);
+    }
   };
 
   return (
@@ -85,7 +99,9 @@ const CreateCandidate = () => {
             <option value="CRM/ERP">CRM/ERP</option>
           </select>
         </div>
-        <button type="button" onClick={handleCreateCandidate}>Create Candidate</button>
+        <button type="button" onClick={handleCreateCandidate}>
+          Create Candidate
+        </button>
       </form>
     </div>
   );

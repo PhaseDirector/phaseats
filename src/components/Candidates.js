@@ -1,58 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
+import axios from 'axios';
 
 const Candidates = () => {
   const history = useHistory();
   const [candidates, setCandidates] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [originalCandidates, setOriginalCandidates] = useState([]);
 
-  // Sample array of candidates (replace with your actual API calls)
-  const dummyCandidates = [
-    {
-      id: 1,
-      firstName: 'John',
-      lastName: 'Doe',
-      address: '123 Main St',
-      phone: '1234567890',
-      email: 'john@example.com',
-      notes: 'Lorem ipsum dolor sit amet',
-      type: 'Project Manager'
-    },
-    {
-      id: 2,
-      firstName: 'Jane',
-      lastName: 'Smith',
-      address: '456 Elm St',
-      phone: '9876543210',
-      email: 'jane@example.com',
-      notes: 'Lorem ipsum dolor sit amet',
-      type: 'Developer'
-    },
-    {
-      id: 3,
-      firstName: 'Bob',
-      lastName: 'Johnson',
-      address: '789 Oak St',
-      phone: '5678901234',
-      email: 'bob@example.com',
-      notes: 'Lorem ipsum dolor sit amet',
-      type: 'Business Analyst'
+  const fetchCandidates = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/api/candidates');
+      setCandidates(response.data);
+      setOriginalCandidates(response.data);
+    } catch (error) {
+      console.error('Error fetching candidates:', error);
     }
-  ];
+  };
 
   useEffect(() => {
-    const fetchCandidates = async () => {
-      try {
-        // Replace with your actual API call to fetch candidates
-        // const response = await fetch('/api/candidates');
-        // const data = await response.json();
-        // setCandidates(data);
-        setCandidates(dummyCandidates);
-      } catch (error) {
-        console.error('Error fetching candidates:', error);
-      }
-    };
-
     fetchCandidates();
   }, []);
 
@@ -60,14 +26,13 @@ const Candidates = () => {
     const query = e.target.value;
     setSearchQuery(query);
 
-    // Filter candidates based on partial matches
-    const filteredCandidates = dummyCandidates.filter((candidate) => {
-      const { firstName, lastName, email, phone } = candidate;
+    const filteredCandidates = originalCandidates.filter((candidate) => {
+      const { first_name, last_name, email, phone } = candidate;
       const lowerCaseQuery = query.toLowerCase();
 
       return (
-        firstName.toLowerCase().includes(lowerCaseQuery) ||
-        lastName.toLowerCase().includes(lowerCaseQuery) ||
+        first_name.toLowerCase().includes(lowerCaseQuery) ||
+        last_name.toLowerCase().includes(lowerCaseQuery) ||
         email.toLowerCase().includes(lowerCaseQuery) ||
         phone.toLowerCase().includes(lowerCaseQuery)
       );
@@ -78,18 +43,14 @@ const Candidates = () => {
 
   const handleClearSearch = () => {
     setSearchQuery('');
-    // Reset candidates to the original list
-    setCandidates(dummyCandidates);
+    setCandidates(originalCandidates);
   };
 
   const handleAddCandidate = () => {
-    // Save candidate details and perform necessary actions
-    // For now, let's just navigate to the CreateCandidate page
     history.push('/createcandidate');
   };
 
   const handleCandidateClick = (candidateId) => {
-    // Redirect to candidate page using the candidate ID
     history.push(`/candidate/${candidateId}`);
   };
 
@@ -131,10 +92,10 @@ const Candidates = () => {
               </td>
               <td>
                 <a href={`/candidate/${candidate.id}`} onClick={() => handleCandidateClick(candidate.id)}>
-                  {candidate.firstName}
+                  {candidate.first_name}
                 </a>
               </td>
-              <td>{candidate.lastName}</td>
+              <td>{candidate.last_name}</td>
               <td>{candidate.address}</td>
               <td>{candidate.phone}</td>
               <td>{candidate.email}</td>
@@ -149,9 +110,3 @@ const Candidates = () => {
 };
 
 export default Candidates;
-
-
-
-
-
-

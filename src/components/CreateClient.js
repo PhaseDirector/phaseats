@@ -1,87 +1,83 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 
 const CreateClient = () => {
-  const [clients, setClients] = useState([]);
-  const [clientDetails, setClientDetails] = useState({
-    id: '',
-    name: '',
-    address: '',
-    website: '',
-    notes: '',
-  });
+  const [clientName, setClientName] = useState('');
+  const [address, setAddress] = useState('');
+  const [website, setWebsite] = useState('');
+  const [notes, setNotes] = useState('');
+
   const history = useHistory();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setClientDetails((prevDetails) => ({
-      ...prevDetails,
-      [name]: value,
-    }));
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const handleAddClient = () => {
-    if (clientDetails.name && clientDetails.address && clientDetails.website) {
-      const newClient = {
-        ...clientDetails,
-        id: generateClientId(),
-      };
-      setClients((prevClients) => [...prevClients, newClient]);
-      setClientDetails({
-        id: '',
-        name: '',
-        address: '',
-        website: '',
-        notes: '',
-      });
-      history.push('/clients'); // Redirect to the Clients component
+    const newClient = {
+      client_name: clientName,
+      address,
+      website,
+      notes,
+    };
+
+    try {
+      await axios.post('http://localhost:8000/api/clients', newClient);
+      console.log('Client created successfully');
+      // Reset the form fields
+      setClientName('');
+      setAddress('');
+      setWebsite('');
+      setNotes('');
+      // Redirect to Clients component
+      history.push('/clients');
+    } catch (error) {
+      console.error('Error creating client:', error);
     }
   };
-
-  // Generate a 4-digit client ID automatically
-  function generateClientId() {
-    const randomNumber = Math.floor(1000 + Math.random() * 9000);
-    return `C${randomNumber}`;
-  }
 
   return (
     <div>
       <h2>Create Client</h2>
-      <label htmlFor="clientName">Client Name:</label>
-      <input
-        type="text"
-        id="clientName"
-        name="name"
-        value={clientDetails.name}
-        onChange={handleChange}
-      />
-      <label htmlFor="clientAddress">Address:</label>
-      <input
-        type="text"
-        id="clientAddress"
-        name="address"
-        value={clientDetails.address}
-        onChange={handleChange}
-      />
-      <label htmlFor="clientWebsite">Website:</label>
-      <input
-        type="text"
-        id="clientWebsite"
-        name="website"
-        value={clientDetails.website}
-        onChange={handleChange}
-      />
-      <label htmlFor="clientNotes">Notes:</label>
-      <textarea
-        id="clientNotes"
-        name="notes"
-        value={clientDetails.notes}
-        onChange={handleChange}
-      ></textarea>
-      <button onClick={handleAddClient}>Add Client</button>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label htmlFor="clientName">Client Name:</label>
+          <input
+            type="text"
+            id="clientName"
+            value={clientName}
+            onChange={(e) => setClientName(e.target.value)}
+          />
+        </div>
+        <div>
+          <label htmlFor="address">Address:</label>
+          <input
+            type="text"
+            id="address"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+          />
+        </div>
+        <div>
+          <label htmlFor="website">Website:</label>
+          <input
+            type="text"
+            id="website"
+            value={website}
+            onChange={(e) => setWebsite(e.target.value)}
+          />
+        </div>
+        <div>
+          <label htmlFor="notes">Notes:</label>
+          <textarea
+            id="notes"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+          />
+        </div>
+        <button type="submit">Create</button>
+      </form>
     </div>
   );
 };
 
 export default CreateClient;
-
