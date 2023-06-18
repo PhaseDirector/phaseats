@@ -1,4 +1,6 @@
 const { Pool } = require('pg');
+const express = require('express');
+
 
 // Create a connection pool to the PostgreSQL database
 const pool = new Pool({
