@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 const Jobs = () => {
   const [jobs, setJobs] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedJobs, setSelectedJobs] = useState([]);
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -26,6 +27,31 @@ const Jobs = () => {
 
   const handleClearSearch = () => {
     setSearchQuery('');
+  };
+
+  const handleJobSelection = (jobId) => {
+    setSelectedJobs((prevSelectedJobs) => {
+      if (prevSelectedJobs.includes(jobId)) {
+        return prevSelectedJobs.filter((id) => id !== jobId);
+      } else {
+        return [...prevSelectedJobs, jobId];
+      }
+    });
+  };
+
+  const handleArchiveJobs = async () => {
+    try {
+      await axios.post('http://localhost:8000/api/archive', {
+        jobIds: selectedJobs,
+      });
+      // Refresh the job list
+      const response = await axios.get('http://localhost:8000/api/jobs');
+      setJobs(response.data);
+      // Clear selected jobs
+      setSelectedJobs([]);
+    } catch (error) {
+      console.error('Error archiving jobs:', error);
+    }
   };
 
   const filteredJobs = jobs.filter((job) => {
@@ -52,6 +78,9 @@ const Jobs = () => {
           onChange={handleSearchQueryChange}
         />
         <button onClick={handleClearSearch}>Clear</button>
+        <button onClick={handleArchiveJobs} disabled={selectedJobs.length === 0}>
+          Archive
+        </button>
         <Link to="/createjob">Add Job</Link>
       </div>
       <table>
@@ -62,6 +91,7 @@ const Jobs = () => {
             <th>Description</th>
             <th>Location</th>
             <th>Requirements</th>
+            <th>Select</th>
           </tr>
         </thead>
         <tbody>
@@ -74,6 +104,13 @@ const Jobs = () => {
               <td>{job.description}</td>
               <td>{job.location}</td>
               <td>{job.requirements}</td>
+              <td>
+                <input
+                  type="checkbox"
+                  checked={selectedJobs.includes(job.job_id)}
+                  onChange={() => handleJobSelection(job.job_id)}
+                />
+              </td>
             </tr>
           ))}
         </tbody>
@@ -83,3 +120,5 @@ const Jobs = () => {
 };
 
 export default Jobs;
+
+

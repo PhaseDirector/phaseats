@@ -40,12 +40,13 @@ const CreateClient = () => {
       <h2>Create Client</h2>
       <form onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="clientName">Client Name:</label>
+          <label htmlFor="clientName">Name:</label>
           <input
             type="text"
             id="clientName"
             value={clientName}
             onChange={(e) => setClientName(e.target.value)}
+            required
           />
         </div>
         <div>
@@ -55,6 +56,7 @@ const CreateClient = () => {
             id="address"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
+            required
           />
         </div>
         <div>
@@ -81,3 +83,4 @@ const CreateClient = () => {
 };
 
 export default CreateClient;
+
