@@ -39,18 +39,26 @@ const Jobs = () => {
     });
   };
 
-  const handleArchiveJobs = async () => {
+  const handleDeleteJobs = async () => {
+    const confirmDelete = window.confirm('Are you sure you want to delete the selected jobs?');
+    if (!confirmDelete) {
+      return;
+    }
+
     try {
-      await axios.post('http://localhost:8000/api/archive', {
-        jobIds: selectedJobs,
-      });
+      // Delete the selected jobs
+      await Promise.all(
+        selectedJobs.map(async (jobId) => {
+          await axios.delete(`http://localhost:8000/api/jobs/${jobId}`);
+        })
+      );
       // Refresh the job list
       const response = await axios.get('http://localhost:8000/api/jobs');
       setJobs(response.data);
       // Clear selected jobs
       setSelectedJobs([]);
     } catch (error) {
-      console.error('Error archiving jobs:', error);
+      console.error('Error deleting jobs:', error);
     }
   };
 
@@ -78,8 +86,8 @@ const Jobs = () => {
           onChange={handleSearchQueryChange}
         />
         <button onClick={handleClearSearch}>Clear</button>
-        <button onClick={handleArchiveJobs} disabled={selectedJobs.length === 0}>
-          Archive
+        <button onClick={handleDeleteJobs} disabled={selectedJobs.length === 0}>
+          Delete Selected
         </button>
         <Link to="/createjob">Add Job</Link>
       </div>
@@ -98,7 +106,8 @@ const Jobs = () => {
           {filteredJobs.map((job) => (
             <tr key={job.job_id}>
               <td>
-                <Link to={`/job/${job.job_id}`}>{job.job_id}</Link>
+              <Link to={`/jobs/${job.job_id}`}>{job.job_id}</Link>
+
               </td>
               <td>{job.job_title}</td>
               <td>{job.description}</td>
@@ -120,5 +129,4 @@ const Jobs = () => {
 };
 
 export default Jobs;
-
 

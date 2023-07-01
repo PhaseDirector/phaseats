@@ -12,6 +12,19 @@ import CandidateDetails from './components/CandidateDetails';
 import ClientDetails from './components/ClientDetails';
 import JobDetails from './components/JobDetails';
 import ArchivedJobs from './components/ArchivedJobs';
+import { ThemeProvider } from '@emotion/react';
+import Groups from './components/Groups';
+import CreateGroup from './components/CreateGroup';
+import CandidateGroups from './components/CandidateGroups';
+
+
+
+
+
+
+
+
+
 
 ReactDOM.render(
   <React.StrictMode>
@@ -24,10 +37,14 @@ ReactDOM.render(
         <Route exact path="/createcandidate" component={CreateCandidate} />
         <Route exact path="/createclient" component={CreateClient} />
         <Route exact path="/createjob" component={CreateJob} />
-        <Route exact path="/candidate/:id" component={CandidateDetails} />
+        <Route exact path="/candidates/:id" component={CandidateDetails} />
         <Route exact path="/client/:id" component={ClientDetails} />
-        <Route exact path="/job/:id" component={JobDetails} />
+        <Route exact path="/jobs/:id" component={JobDetails} />
         <Route exact path="/archivedjobs" component={ArchivedJobs} />
+        <Route exact path="/jobdetails" component={JobDetails} />
+        <Route exact path="/groups" component={Groups} />
+        <Route exact path="/creategroup" component={CreateGroup} />
+        <Route exact path="/candidategroups" component={CandidateGroups} />
       </Switch>
     </Router>
   </React.StrictMode>,

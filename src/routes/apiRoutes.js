@@ -28,7 +28,7 @@ router.get('/candidates', (req, res) => {
 // Retrieve a specific candidate by ID
 router.get('/candidates/:id', (req, res) => {
   const { id } = req.params;
-  pool.query('SELECT * FROM candidates WHERE id = $1', [id], (error, result) => {
+  pool.query('SELECT * FROM candidates WHERE candidate_id = $1', [id], (error, result) => {
     if (error) {
       console.error('Error executing query:', error);
       res.status(500).json({ error: 'Internal Server Error' });
@@ -42,10 +42,10 @@ router.get('/candidates/:id', (req, res) => {
 
 // Create a new candidate
 router.post('/candidates', (req, res) => {
-  const { first_name, last_name, address, phone, email, notes, type } = req.body;
+  const { first_name, last_name, address, phone, email, notes, type, specialization, skills } = req.body;
   pool.query(
-    'INSERT INTO candidates (first_name, last_name, address, phone, email, notes, type) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-    [first_name, last_name, address, phone, email, notes, type],
+    'INSERT INTO candidates (first_name, last_name, address, phone, email, notes, type, specialization, skills) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
+    [first_name, last_name, address, phone, email, notes, type, specialization, skills],
     (error, result) => {
       if (error) {
         console.error('Error executing query:', error);
@@ -60,10 +60,10 @@ router.post('/candidates', (req, res) => {
 // Update an existing candidate
 router.put('/candidates/:id', (req, res) => {
   const { id } = req.params;
-  const { first_name, last_name, address, phone, email, notes, type } = req.body;
+  const { first_name, last_name, address, phone, email, notes, type, specialization, skills } = req.body;
   pool.query(
-    'UPDATE candidates SET first_name = $1, last_name = $2, address = $3, phone = $4, email = $5, notes = $6, type = $7 WHERE id = $8 RETURNING *',
-    [first_name, last_name, address, phone, email, notes, type, id],
+    'UPDATE candidates SET first_name = $1, last_name = $2, address = $3, phone = $4, email = $5, notes = $6, type = $7, specialization = $8, skills = $9 WHERE candidate_id = $10 RETURNING *',
+    [first_name, last_name, address, phone, email, notes, type, specialization, skills, id],
     (error, result) => {
       if (error) {
         console.error('Error executing query:', error);
@@ -77,20 +77,25 @@ router.put('/candidates/:id', (req, res) => {
   );
 });
 
+
 // Delete a candidate
 router.delete('/candidates/:id', (req, res) => {
   const { id } = req.params;
-  pool.query('DELETE FROM candidates WHERE id = $1', [id], (error, result) => {
-    if (error) {
-      console.error('Error executing query:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    } else if (result.rowCount === 0) {
-      res.status(404).json({ error: 'Candidate not found' });
-    } else {
-      res.status(204).end();
+  pool.query('DELETE FROM candidates WHERE candidate_id = $1', 
+    [id], 
+    (error, result) => {
+      if (error) {
+        console.error('Error executing query:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else if (result.rowCount === 0) {
+        res.status(404).json({ error: 'Candidate not found' });
+      } else {
+        res.status(204).end();
+      }
     }
-  });
+  );
 });
+
 
 // Retrieve all jobs
 router.get('/jobs', (req, res) => {
@@ -174,6 +179,27 @@ router.post('/jobs', (req, res) => {
     }
   );
 });
+
+// Delete a job
+router.delete('/jobs/:id', (req, res) => {
+  const { id } = req.params;
+  pool.query('DELETE FROM jobs WHERE job_id = $1',
+    [id],
+    (error, result) => {
+      if (error) {
+        console.error('Error executing query:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else if (result.rowCount === 0) {
+        res.status(404).json({ error: 'Job not found' });
+      } else {
+        res.status(204).send(); // Successful deletion, no content to send
+      }
+    }
+  );
+});
+
+
+// ...
 
 // Update an existing job
 router.put('/jobs/:id', (req, res) => {
@@ -279,6 +305,203 @@ router.delete('/clients/:id', (req, res) => {
 
 
 
+// Retrieve all groups
+router.get('/groups', (req, res) => {
+  pool.query('SELECT * FROM groups', (error, result) => {
+    if (error) {
+      console.error('Error executing query:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      console.log('Query executed successfully:', result.rows);
+      res.status(200).json(result.rows);
+    }
+  });
+});
+
+// Retrieve a specific group by ID
+router.get('/groups/:id', (req, res) => {
+  const { id } = req.params;
+  pool.query('SELECT * FROM groups WHERE group_id = $1', [id], (error, result) => {
+    if (error) {
+      console.error('Error executing query:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else if (result.rows.length === 0) {
+      res.status(404).json({ error: 'Group not found' });
+    } else {
+      res.status(200).json(result.rows[0]);
+    }
+  });
+});
+
+// Create a new group
+router.post('/groups', (req, res) => {
+  const { name, description } = req.body;
+  pool.query(
+    'INSERT INTO groups (name, description) VALUES ($1, $2) RETURNING *',
+    [name, description],
+    (error, result) => {
+      if (error) {
+        console.error('Error executing query:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+        res.status(201).json(result.rows[0]);
+      }
+    }
+  );
+});
+
+// Update an existing group
+router.put('/groups/:id', (req, res) => {
+  const { id } = req.params;
+  const { name, description } = req.body;
+  pool.query(
+    'UPDATE groups SET name = $1, description = $2 WHERE group_id = $3 RETURNING *',
+    [name, description, id],
+    (error, result) => {
+      if (error) {
+        console.error('Error executing query:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else if (result.rows.length === 0) {
+        res.status(404).json({ error: 'Group not found' });
+      } else {
+        res.status(200).json(result.rows[0]);
+      }
+    }
+  );
+});
+
+// Delete a group
+router.delete('/groups/:id', (req, res) => {
+  const { id } = req.params;
+  pool.query('DELETE FROM groups WHERE group_id = $1', [id], (error, result) => {
+    if (error) {
+      console.error('Error executing query:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else if (result.rowCount === 0) {
+      res.status(404).json({ error: 'Group not found' });
+    } else {
+      res.status(204).end();
+    }
+  });
+});
+
+// Delete a candidate group
+router.delete('/candidategroups/:id', (req, res) => {
+  const candidategroupId = req.params.id;
+
+  pool.query(
+    'DELETE FROM candidategroups WHERE id = $1',
+    [candidategroupId],
+    (error, result) => {
+      if (error) {
+        console.error('Error executing query:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+        res.status(204).end(); // No content response
+      }
+    }
+  );
+});
+
+// Update a candidate group
+router.put('/candidategroups/:id', (req, res) => {
+  const candidategroupId = req.params.id;
+  const { candidate_id, group_id } = req.body;
+
+  // Perform validation if necessary
+  if (!candidate_id || !group_id) {
+    res.status(400).json({ error: 'Candidate ID and Group ID are required' });
+    return;
+  }
+
+  pool.query(
+    'UPDATE candidategroups SET candidate_id = $1, group_id = $2 WHERE id = $3 RETURNING *',
+    [candidate_id, group_id, candidategroupId],
+    (error, result) => {
+      if (error) {
+        console.error('Error executing query:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+        res.status(200).json(result.rows[0]);
+      }
+    }
+  );
+});
+
+// Get a candidate group by ID
+router.get('/candidategroups/:id', (req, res) => {
+  const candidategroupId = req.params.id;
+
+  pool.query(
+    'SELECT * FROM candidategroups WHERE id = $1',
+    [candidategroupId],
+    (error, result) => {
+      if (error) {
+        console.error('Error executing query:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+        if (result.rows.length === 0) {
+          res.status(404).json({ error: 'Candidate Group not found' });
+        } else {
+          res.status(200).json(result.rows[0]);
+        }
+      }
+    }
+  );
+});
+
+// Assign a candidate to a group
+router.post('/groups/:groupId/candidates/:candidateId', (req, res) => {
+  const { groupId, candidateId } = req.params;
+  pool.query(
+    'INSERT INTO group_candidates (group_id, candidate_id) VALUES ($1, $2) RETURNING *',
+    [groupId, candidateId],
+    (error, result) => {
+      if (error) {
+        console.error('Error executing query:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+        res.status(201).json(result.rows[0]);
+      }
+    }
+  );
+});
+
+// Save candidates to a group
+router.post('/candidategroups', (req, res) => {
+  const { candidate_id, group_id } = req.body;
+
+  // Perform validation if necessary
+  if (!candidate_id || !group_id) {
+    res.status(400).json({ error: 'Candidate ID and Group ID are required' });
+    return;
+  }
+
+  pool.query(
+    'INSERT INTO candidategroups (candidate_id, group_id) VALUES ($1, $2) RETURNING *',
+    [candidate_id, group_id],
+    (error, result) => {
+      if (error) {
+        console.error('Error executing query:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+        res.status(201).json(result.rows[0]);
+      }
+    }
+  );
+});
+
+// Retrieve all candidate groups
+router.get('/candidategroups', (req, res) => {
+  pool.query('SELECT * FROM candidategroups', (error, result) => {
+    if (error) {
+      console.error('Error executing query:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      console.log('Query executed successfully:', result.rows);
+      res.status(200).json(result.rows);
+    }
+  });
+});
 
 module.exports = router;
-

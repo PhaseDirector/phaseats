@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useHistory } from 'react-router-dom';
 import axios from 'axios';
 
-const CandidateDetails = (props) => {
+const CandidateDetails = () => {
+  const { id } = useParams();
+  const history = useHistory();
   const [candidate, setCandidate] = useState(null);
   const [editedCandidate, setEditedCandidate] = useState(null);
 
   useEffect(() => {
     const fetchCandidateDetails = async () => {
       try {
-        const candidateId = props.match.params.id; // Extract the candidate ID from the URL
-        const response = await axios.get(`http://localhost:8000/api/candidates/${candidateId}`);
+        const response = await axios.get(`http://localhost:8000/api/candidates/${id}`);
         setCandidate(response.data);
         setEditedCandidate(response.data);
       } catch (error) {
@@ -17,10 +19,8 @@ const CandidateDetails = (props) => {
       }
     };
 
-    console.log('Candidate ID:', props.match.params.id); // Add this console.log statement
-
     fetchCandidateDetails();
-  }, [props.match.params.id]);
+  }, [id]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -35,9 +35,7 @@ const CandidateDetails = (props) => {
       await axios.put(`http://localhost:8000/api/candidates/${candidate.candidate_id}`, editedCandidate);
       setCandidate(editedCandidate);
       alert('Changes saved successfully!');
-      setTimeout(() => {
-        window.location.href = '/candidates'; // Redirect to the candidates page
-      }, 100); // Delay the redirect by a small amount to ensure state update is complete
+      history.push('/candidates'); // Redirect to the candidates page
     } catch (error) {
       console.error('Error saving changes:', error);
       alert('Failed to save changes. Please try again.');
@@ -91,6 +89,17 @@ const CandidateDetails = (props) => {
             </td>
           </tr>
           <tr>
+            <th>Phone</th>
+            <td>
+              <input
+                type="text"
+                name="phone"
+                value={editedCandidate.phone || ''}
+                onChange={handleInputChange}
+              />
+            </td>
+          </tr>
+          <tr>
             <th>Email</th>
             <td>
               <input
@@ -122,28 +131,6 @@ const CandidateDetails = (props) => {
               />
             </td>
           </tr>
-          <tr>
-            <th>Specialization</th>
-            <td>
-              <input
-                type="text"
-                name="specialization"
-                value={editedCandidate.specialization || ''}
-                onChange={handleInputChange}
-              />
-            </td>
-          </tr>
-          <tr>
-            <th>Skills</th>
-            <td>
-              <input
-                type="text"
-                name="skills"
-                value={editedCandidate.skills || ''}
-                onChange={handleInputChange}
-              />
-            </td>
-          </tr>
         </tbody>
       </table>
       <button onClick={handleSaveChanges}>Save Changes</button>
@@ -152,3 +139,5 @@ const CandidateDetails = (props) => {
 };
 
 export default CandidateDetails;
+
+

@@ -1,3 +1,4 @@
+// App.js
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch, Link } from 'react-router-dom';
 import Candidates from './components/Candidates';
@@ -8,7 +9,12 @@ import CreateClient from './components/CreateClient';
 import CreateCandidate from './components/CreateCandidate';
 import SearchTab from './components/SearchTab';
 import CreateJob from './components/CreateJob';
-import axios from 'axios';
+import ArchivedJobs from './components/ArchivedJobs';
+import JobDetails from './components/JobDetails';
+import Groups from './components/Groups';
+import CreateGroup from './components/CreateGroup';
+import CandidateGroups from './components/CandidateGroups';
+
 
 function App() {
   return (
@@ -43,6 +49,18 @@ function App() {
             <li style={{ display: 'inline-block', marginRight: '10px' }}>
               <Link to="/createjob">Create Job</Link>
             </li>
+            <li style={{ display: 'inline-block', marginRight: '10px' }}>
+              <Link to="/archivedjobs">Archived Jobs</Link>
+            </li>
+            <li style={{ display: 'inline-block', marginRight: '10px' }}>
+              <Link to="/groups">Groups</Link>
+            </li>
+            <li style={{ display: 'inline-block', marginRight: '10px' }}>
+              <Link to="/creategroup">Create Groups</Link>
+            </li>
+            <li style={{ display: 'inline-block', marginRight: '10px' }}>
+              <Link to="/candidategroups">Candidate Groups</Link>
+            </li>
           </ul>
         </nav>
 
@@ -56,6 +74,12 @@ function App() {
           <Route exact path="/createclient" component={CreateClient} />
           <Route exact path="/createcandidate" component={CreateCandidate} />
           <Route exact path="/createjob" component={CreateJob} />
+          <Route exact path="/archivedjobs" component={ArchivedJobs} />
+          <Route exact path="/jobs/:jobId" component={JobDetails} />
+          <Route exact path="/groups" component={Groups} />
+          <Route exact path="/creategroup" component={CreateGroup} />
+          <Route exact path="/candidategroups" component={CandidateGroups} />
+
         </Switch>
       </div>
     </Router>

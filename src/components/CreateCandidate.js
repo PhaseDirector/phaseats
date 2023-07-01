@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import axios from 'axios';
+import {
+  TextField,
+  Button,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  FormGroup,
+  FormControlLabel,
+  Checkbox,
+  Box,
+} from '@mui/material';
 
 const CreateCandidate = () => {
   const [firstName, setFirstName] = useState('');
@@ -10,6 +22,8 @@ const CreateCandidate = () => {
   const [email, setEmail] = useState('');
   const [notes, setNotes] = useState('');
   const [type, setType] = useState('');
+  const [specialization, setSpecialization] = useState('');
+  const [selectedSkills, setSelectedSkills] = useState([]);
   const history = useHistory();
 
   const handleFirstNameChange = (e) => {
@@ -40,6 +54,21 @@ const CreateCandidate = () => {
     setType(e.target.value);
   };
 
+  const handleSpecializationChange = (e) => {
+    const { value } = e.target;
+    setSpecialization(value);
+  };
+
+  const handleSkillsChange = (e) => {
+    const { value, checked } = e.target;
+    if (checked) {
+      setSelectedSkills((prevSkills) => [...prevSkills, value]);
+    } else {
+      setSelectedSkills((prevSkills) => prevSkills.filter((skill) => skill !== value));
+    }
+  };
+  
+
   const handleCreateCandidate = async () => {
     try {
       const newCandidate = {
@@ -50,6 +79,8 @@ const CreateCandidate = () => {
         email,
         notes,
         type,
+        specialization,
+        skills: selectedSkills.join(', '),
       };
 
       await axios.post('http://localhost:8000/api/candidates', newCandidate);
@@ -59,52 +90,98 @@ const CreateCandidate = () => {
     }
   };
 
+  const specializationOptions = [
+    { value: 'Developer', skills: ['HTML', 'CSS', 'JavaScript', 'Python', 'Java', 'C++'] },
+    { value: 'Tester', skills: ['Manual Testing', 'Automated Testing', 'Regression Testing', 'Load Testing'] },
+    { value: 'Project Manager', skills: ['Infrastructure', 'Development', 'Business', 'Mix'] },
+    { value: 'Business Analyst', skills: ['Requirements Gathering', 'Process Mapping', 'Data Analysis'] },
+    { value: 'ERP/CRM', skills: ['SAP', 'Oracle', 'Salesforce', 'Microsoft Dynamics'] },
+    { value: 'Cloud Engineer', skills: ['AWS', 'Azure', 'Google Cloud', 'DevOps'] },
+    { value: 'DevOps', skills: ['CI/CD', 'Containerization', 'Infrastructure as Code'] },
+    { value: 'Manager', skills: ['Leadership', 'Team Management', 'Project Planning'] },
+  ];
+
   return (
     <div>
       <h2>Create Candidate</h2>
       <form>
         <div>
-          <label htmlFor="firstName">First Name:</label>
-          <input type="text" id="firstName" value={firstName} onChange={handleFirstNameChange} />
+          <TextField label="First Name" value={firstName} onChange={handleFirstNameChange} />
         </div>
         <div>
-          <label htmlFor="lastName">Last Name:</label>
-          <input type="text" id="lastName" value={lastName} onChange={handleLastNameChange} />
+          <TextField label="Last Name" value={lastName} onChange={handleLastNameChange} />
         </div>
         <div>
-          <label htmlFor="address">Address:</label>
-          <input type="text" id="address" value={address} onChange={handleAddressChange} />
+          <TextField label="Address" value={address} onChange={handleAddressChange} />
         </div>
         <div>
-          <label htmlFor="phone">Phone:</label>
-          <input type="text" id="phone" value={phone} onChange={handlePhoneChange} />
+          <TextField label="Phone" value={phone} onChange={handlePhoneChange} />
         </div>
         <div>
-          <label htmlFor="email">Email:</label>
-          <input type="email" id="email" value={email} onChange={handleEmailChange} />
+          <TextField label="Email" type="email" value={email} onChange={handleEmailChange} />
         </div>
         <div>
-          <label htmlFor="notes">Notes:</label>
-          <textarea id="notes" value={notes} onChange={handleNotesChange} />
+          <TextField label="Notes" multiline value={notes} onChange={handleNotesChange} />
         </div>
         <div>
-          <label htmlFor="type">Type:</label>
-          <select id="type" value={type} onChange={handleTypeChange}>
-            <option value="">Select Type</option>
-            <option value="Project Manager">Project Manager</option>
-            <option value="Manager">Manager</option>
-            <option value="Business Analyst">Business Analyst</option>
-            <option value="Developer">Developer</option>
-            <option value="Tester">Tester</option>
-            <option value="CRM/ERP">CRM/ERP</option>
-          </select>
+          <FormControl>
+            <InputLabel>Type</InputLabel>
+            <Select value={type} onChange={handleTypeChange}>
+              <MenuItem value="">Select Type</MenuItem>
+              <MenuItem value="Full-Time">Full-Time</MenuItem>
+              <MenuItem value="Contract">Contract</MenuItem>
+              <MenuItem value="Part-Time">Part-Time</MenuItem>
+             
+            </Select>
+          </FormControl>
         </div>
-        <button type="button" onClick={handleCreateCandidate}>
+        <div>
+          <FormControl>
+            <InputLabel>Specialization</InputLabel>
+            <Select value={specialization} onChange={handleSpecializationChange}>
+              <MenuItem value="">Select Specialization</MenuItem>
+              {specializationOptions.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.value}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </div>
+        {specialization && (
+          <div>
+            <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+              <FormControl component="fieldset">
+                <InputLabel>Skills</InputLabel>
+                <FormGroup>
+                  {specializationOptions.find((option) => option.value === specialization).skills.map((skill) => (
+                    <FormControlLabel
+                      key={skill}
+                      control={
+                        <Checkbox
+                          checked={selectedSkills.includes(skill)}
+                          value={skill}
+                          onChange={handleSkillsChange}
+                        />
+                      }
+                      label={skill}
+                    />
+                  ))}
+                </FormGroup>
+              </FormControl>
+            </Box>
+          </div>
+        )}
+        <Button variant="contained" onClick={handleCreateCandidate}>
           Create Candidate
-        </button>
+        </Button>
       </form>
     </div>
   );
 };
 
 export default CreateCandidate;
+
+
+
+
