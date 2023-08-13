@@ -11,9 +11,12 @@ import SearchTab from './components/SearchTab';
 import CreateJob from './components/CreateJob';
 import ArchivedJobs from './components/ArchivedJobs';
 import JobDetails from './components/JobDetails';
+import CandidateDetails from './components/CandidateDetails';
+import GroupDetails from './components/GroupDetails';
 import Groups from './components/Groups';
 import CreateGroup from './components/CreateGroup';
 import CandidateGroups from './components/CandidateGroups';
+import ClientDetails from './components/ClientDetails';
 
 
 function App() {
@@ -34,9 +37,7 @@ function App() {
             <li style={{ display: 'inline-block', marginRight: '10px' }}>
               <Link to="/jobs">Jobs</Link>
             </li>
-            <li style={{ display: 'inline-block', marginRight: '10px' }}>
-              <Link to="/files">Files</Link>
-            </li>
+           
             <li style={{ display: 'inline-block', marginRight: '10px' }}>
               <Link to="/search">Search</Link>
             </li>
@@ -61,25 +62,28 @@ function App() {
             <li style={{ display: 'inline-block', marginRight: '10px' }}>
               <Link to="/candidategroups">Candidate Groups</Link>
             </li>
-          </ul>
+           </ul>
         </nav>
 
         {/* Route Configuration */}
         <Switch>
           <Route exact path="/candidates" component={Candidates} />
           <Route exact path="/clients" component={Clients} />
-          <Route exact path="/files" component={Files} />
           <Route exact path="/jobs" component={Jobs} />
+         
           <Route exact path="/search" component={SearchTab} />
           <Route exact path="/createclient" component={CreateClient} />
           <Route exact path="/createcandidate" component={CreateCandidate} />
           <Route exact path="/createjob" component={CreateJob} />
           <Route exact path="/archivedjobs" component={ArchivedJobs} />
           <Route exact path="/jobs/:jobId" component={JobDetails} />
+          <Route exact path="/candidates/:candidateId" component={CandidateDetails} />
+          <Route exact path="/groups/:groupId" component={GroupDetails} />
+          <Route exact path="/clients/:clientId" component={ClientDetails} />
           <Route exact path="/groups" component={Groups} />
           <Route exact path="/creategroup" component={CreateGroup} />
           <Route exact path="/candidategroups" component={CandidateGroups} />
-
+          
         </Switch>
       </div>
     </Router>

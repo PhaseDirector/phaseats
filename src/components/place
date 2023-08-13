@@ -1,0 +1,258 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useHistory } from 'react-router-dom';
+import {
+  TextField,
+  Button,
+  Box,
+} from '@mui/material';
+import { useDropzone } from 'react-dropzone';
+import { makeStyles } from '@mui/styles';
+
+const useStyles = makeStyles((theme) => ({
+    inputField: {
+      width: '25%',
+    },
+    root: {
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between',
+      backgroundColor: 'black',
+      color: 'white',
+      fontFamily: 'Arial',
+      padding: '1rem',
+      '& .MuiInputBase-root': {
+        color: 'white',
+      },
+      '& .MuiOutlinedInput-root': {
+        '& fieldset': {
+          borderColor: 'white',
+        },
+      },
+      '& .MuiInputLabel-root': {
+        color: 'white',
+        textAlign: 'center',
+      },
+      '& .MuiSelect-root': {
+        color: 'white',
+      },
+      '& .MuiCheckbox-colorPrimary.Mui-checked': {
+        color: 'white',
+      },
+      textAlign: 'center',
+    },
+    container: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      flexGrow: 1,
+      marginTop: '1rem',
+      '& > *': {
+        marginBottom: '1rem',
+      },
+    },
+    footer: {
+      backgroundColor: 'black',
+      color: 'white',
+      textAlign: 'center',
+      padding: '1rem',
+    },
+  }));
+
+const CandidateDetails = (props) => {
+  const classes = useStyles();
+  const [candidate, setCandidate] = useState(null);
+  const [editedCandidate, setEditedCandidate] = useState(null);
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const [candidateId, setCandidateId] = useState(null);
+
+  useEffect(() => {
+    const fetchCandidateDetails = async () => {
+      try {
+        const candidateId = props.match.params.id;
+        const response = await axios.get(`http://localhost:8000/api/candidates/${candidateId}`);
+
+        setCandidate(response.data);
+        setEditedCandidate(response.data);
+        setUploadedFile(response.data.file_path || null);
+        setCandidateId(response.data.candidate_id);
+      } catch (error) {
+        console.error('Error fetching candidate details:', error);
+      }
+    };
+
+    fetchCandidateDetails();
+  }, [props.match.params.id]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditedCandidate((prevEditedCandidate) => ({
+      ...prevEditedCandidate,
+      [name]: value,
+    }));
+  };
+
+  const handleFileDrop = (acceptedFiles) => {
+    setUploadedFile(acceptedFiles[0]);
+  };
+
+  const handleFileUpload = async () => {
+    const formData = new FormData();
+    formData.append('file', uploadedFile);
+
+    try {
+      const response = await axios.post(
+        `http://localhost:8000/api/uploads?candidateId=${candidateId}`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      const { filename } = response.data;
+      const updatedCandidate = {
+        ...editedCandidate,
+        file_path: `/api/uploads/${filename}`,
+      };
+
+      await axios.put(`http://localhost:8000/api/candidates/${candidateId}`, updatedCandidate);
+
+      setEditedCandidate(updatedCandidate);
+      alert('File uploaded and candidate details saved successfully!');
+    } catch (error) {
+      console.error('Error uploading file and saving candidate details:', error);
+      alert('Failed to upload file and save candidate details. Please try again.');
+    }
+  };
+
+  const handleSaveChanges = async () => {
+    try {
+      await axios.put(`http://localhost:8000/api/candidates/${candidate.candidate_id}`, editedCandidate);
+      setCandidate(editedCandidate);
+      alert('Changes saved successfully!');
+      setTimeout(() => {
+        window.location.href = '/candidates';
+      }, 100);
+    } catch (error) {
+      console.error('Error saving changes:', error);
+      alert('Failed to save changes. Please try again.');
+    }
+  };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop: handleFileDrop,
+    multiple: false,
+    accept: '.pdf,.doc,.docx',
+  });
+
+  if (!candidate || !editedCandidate) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div className={classes.root}>
+      <h2>Candidate Details</h2>
+      <form>
+        <Box className={classes.container}>
+          <TextField
+            label="First Name"
+            name="first_name"
+            value={editedCandidate.first_name || ''}
+            onChange={handleInputChange}
+            className={classes.inputField}
+          />
+          <TextField
+            label="Last Name"
+            name="last_name"
+            value={editedCandidate.last_name || ''}
+            onChange={handleInputChange}
+            className={classes.inputField}
+          />
+          <TextField
+            label="Email"
+            name="email"
+            value={editedCandidate.email || ''}
+            onChange={handleInputChange}
+            className={classes.inputField}
+          />
+          <TextField
+            label="Address"
+            name="address"
+            value={editedCandidate.address || ''}
+            onChange={handleInputChange}
+            className={classes.inputField}
+          />
+          <TextField
+            label="Notes"
+            name="notes"
+            value={editedCandidate.notes || ''}
+            onChange={handleInputChange}
+            className={classes.inputField}
+          />
+          <TextField
+            label="Type"
+            name="type"
+            value={editedCandidate.type || ''}
+            onChange={handleInputChange}
+            className={classes.inputField}
+          />
+          <TextField
+            label="Specialization"
+            name="specialization"
+            value={editedCandidate.specialization || ''}
+            onChange={handleInputChange}
+            className={classes.inputField}
+          />
+          <TextField
+            label="Skills"
+            name="skills"
+            value={editedCandidate.skills || ''}
+            onChange={handleInputChange}
+            className={classes.inputField}
+          />
+          {editedCandidate.file_path && (
+            <TextField
+              label="File Path"
+              value={editedCandidate.file_path}
+              disabled
+              className={classes.inputField}
+            />
+          )}
+        </Box>
+        <Box>
+          <h3>File Upload</h3>
+          <div {...getRootProps()} style={{ border: '2px dashed #aaa', padding: '1rem', textAlign: 'center' }}>
+            <input {...getInputProps()} />
+            {isDragActive ? <p>Drop the file here...</p> : <p>Drag and drop a file here, or click to select a file</p>}
+          </div>
+          {uploadedFile && (
+            <div>
+              <p>Selected File: {uploadedFile.name}</p>
+              <Button variant="contained" onClick={handleFileUpload}>
+                Upload File
+              </Button>
+            </div>
+          )}
+        </Box>
+        <h2>Attachments</h2>
+        {editedCandidate.file_path && (
+          <ul>
+            <li>
+              <a href={`http://localhost:8000/api/uploads/${encodeURIComponent(editedCandidate.file_path)}`} target="_blank" rel="noopener noreferrer">
+                {editedCandidate.file_path}
+              </a>
+            </li>
+          </ul>
+        )}
+        <Button variant="contained" onClick={handleSaveChanges}>
+          Save Changes
+        </Button>
+      </form>
+    </div>
+  );
+};
+
+export default CandidateDetails;

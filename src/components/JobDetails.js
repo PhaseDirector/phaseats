@@ -12,13 +12,16 @@ const JobDetails = (props) => {
         const response = await axios.get(`http://localhost:8000/api/jobs/${jobId}`);
         setJob(response.data);
         setEditedJob(response.data);
+        console.log('Job:', response.data); // Log the fetched job data
+        console.log('Edited Job:', response.data); // Log the edited job data
       } catch (error) {
         console.error('Error fetching job details:', error);
       }
     };
-
+  
     fetchJobDetails();
   }, [props.match.params.id]);
+  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

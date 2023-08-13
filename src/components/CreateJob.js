@@ -1,22 +1,93 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
+import {
+  TextField,
+  Button,
+  Box,
+} from '@mui/material';
+import { makeStyles } from '@mui/styles';
+
+const useStyles = makeStyles((theme) => ({
+  inputField: {
+    width: '25%',
+  },
+  root: {
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    backgroundColor: 'black',
+    color: 'white',
+    fontFamily: 'Arial',
+    padding: '1rem',
+    '& .MuiInputBase-root': {
+      color: 'white',
+    },
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': {
+        borderColor: 'white',
+      },
+    },
+    '& .MuiInputLabel-root': {
+      color: 'white',
+      textAlign: 'center',
+    },
+    '& .MuiSelect-root': {
+      color: 'white',
+    },
+    '& .MuiCheckbox-colorPrimary.Mui-checked': {
+      color: 'white',
+    },
+    textAlign: 'center', // Center-align the "Create Job" title
+  },
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    flexGrow: 1,
+    marginTop: '1rem',
+    '& > *': {
+      marginBottom: '1rem', // Add margin between each input field
+    },
+  },
+  footer: {
+    backgroundColor: 'black',
+    color: 'white',
+    textAlign: 'center',
+    padding: '1rem',
+  },
+}));
 
 const CreateJob = () => {
-  const [job_title, setJobTitle] = useState('');
+  const classes = useStyles();
+  const [jobTitle, setJobTitle] = useState('');
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
   const [requirements, setRequirements] = useState('');
-
   const history = useHistory();
+
+  const handleJobTitleChange = (e) => {
+    setJobTitle(e.target.value);
+  };
+
+  const handleDescriptionChange = (e) => {
+    setDescription(e.target.value);
+  };
+
+  const handleLocationChange = (e) => {
+    setLocation(e.target.value);
+  };
+
+  const handleRequirementsChange = (e) => {
+    setRequirements(e.target.value);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log('Submit button clicked'); // Add this console.log statement
-
     const newJob = {
-      job_title: job_title,
+      job_title: jobTitle,
       description,
       location,
       requirements,
@@ -38,51 +109,46 @@ const CreateJob = () => {
   };
 
   return (
-    <div>
+    <div className={classes.root}>
       <h2>Create Job</h2>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="job-title">Job Title:</label>
-          <input
-            type="text"
-            id="job_title"
-            value={job_title}
-            onChange={(e) => setJobTitle(e.target.value)}
+        <Box className={classes.container}>
+          <TextField
+            label="Job Title"
+            value={jobTitle}
+            onChange={handleJobTitleChange}
+            className={classes.inputField}
           />
-        </div>
-        <div>
-          <label htmlFor="description">Description:</label>
-          <input
-            type="text"
-            id="description"
+          <TextField
+            label="Description"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={handleDescriptionChange}
+            className={classes.inputField}
           />
-        </div>
-        <div>
-          <label htmlFor="location">Location:</label>
-          <input
-            type="text"
-            id="location"
+          <TextField
+            label="Location"
             value={location}
-            onChange={(e) => setLocation(e.target.value)}
+            onChange={handleLocationChange}
+            className={classes.inputField}
           />
-        </div>
-        <div>
-          <label htmlFor="requirements">Requirements:</label>
-          <textarea
-            id="requirements"
+          <TextField
+            label="Requirements"
             value={requirements}
-            onChange={(e) => setRequirements(e.target.value)}
+            onChange={handleRequirementsChange}
+            className={classes.inputField}
           />
-        </div>
-        <button type="submit">Create</button>
+        </Box>
+        <Box display="flex" justifyContent="center" mt={2}>
+          <Button variant="outlined" type="submit">
+            Create
+          </Button>
+        </Box>
       </form>
+      <div className={classes.footer}>
+        <h3>Phase ATS</h3>
+      </div>
     </div>
   );
 };
 
 export default CreateJob;
-
-
-

@@ -11,19 +11,12 @@ import CreateJob from './components/CreateJob';
 import CandidateDetails from './components/CandidateDetails';
 import ClientDetails from './components/ClientDetails';
 import JobDetails from './components/JobDetails';
+import GroupDetails from './components/GroupDetails';
 import ArchivedJobs from './components/ArchivedJobs';
 import { ThemeProvider } from '@emotion/react';
 import Groups from './components/Groups';
 import CreateGroup from './components/CreateGroup';
 import CandidateGroups from './components/CandidateGroups';
-
-
-
-
-
-
-
-
 
 
 ReactDOM.render(
@@ -38,13 +31,15 @@ ReactDOM.render(
         <Route exact path="/createclient" component={CreateClient} />
         <Route exact path="/createjob" component={CreateJob} />
         <Route exact path="/candidates/:id" component={CandidateDetails} />
-        <Route exact path="/client/:id" component={ClientDetails} />
+        <Route exact path="/clients/:id" component={ClientDetails} />
+        <Route exact path="/groups/:id" component={GroupDetails} />
         <Route exact path="/jobs/:id" component={JobDetails} />
         <Route exact path="/archivedjobs" component={ArchivedJobs} />
-        <Route exact path="/jobdetails" component={JobDetails} />
         <Route exact path="/groups" component={Groups} />
         <Route exact path="/creategroup" component={CreateGroup} />
         <Route exact path="/candidategroups" component={CandidateGroups} />
+        {/* Add the file upload route */}
+       
       </Switch>
     </Router>
   </React.StrictMode>,

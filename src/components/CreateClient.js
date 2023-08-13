@@ -1,14 +1,90 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
+import {
+  TextField,
+  Button,
+  Box,
+} from '@mui/material';
+
+import { makeStyles } from '@mui/styles';
+
+const useStyles = makeStyles((theme) => ({
+  inputField: {
+    width: '100%',
+  },
+  root: {
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    backgroundColor: 'black',
+    color: 'white',
+    fontFamily: 'Arial',
+    padding: '1rem',
+    '& .MuiInputBase-root': {
+      color: 'white',
+    },
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': {
+        borderColor: 'white',
+      },
+    },
+    '& .MuiInputLabel-root': {
+      color: 'white',
+      textAlign: 'center',
+    },
+    '& .MuiSelect-root': {
+      color: 'white',
+    },
+    '& .MuiCheckbox-colorPrimary.Mui-checked': {
+      color: 'white',
+    },
+    textAlign: 'center', // Center-align the "Create Job" title
+  },
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexGrow: 1,
+    marginBottom: '1rem',
+    '& > *': {
+      marginBottom: '1rem', // Add margin between each input field
+    },
+  },
+  footer: {
+    backgroundColor: 'black',
+    color: 'white',
+    textAlign: 'center',
+    padding: '1rem',
+  },
+}));
 
 const CreateClient = () => {
   const [clientName, setClientName] = useState('');
   const [address, setAddress] = useState('');
   const [website, setWebsite] = useState('');
   const [notes, setNotes] = useState('');
-
   const history = useHistory();
+
+  const classes = useStyles();
+
+  const handleClientNameChange = (e) => {
+    setClientName(e.target.value);
+  };
+
+  const handleAddressChange = (e) => {
+    setAddress(e.target.value);
+  };
+
+  const handleWebsiteChange = (e) => {
+    setWebsite(e.target.value);
+  };
+
+  const handleNotesChange = (e) => {
+    setNotes(e.target.value);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,51 +112,55 @@ const CreateClient = () => {
   };
 
   return (
-    <div>
-      <h2>Create Client</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="clientName">Name:</label>
-          <input
-            type="text"
-            id="clientName"
-            value={clientName}
-            onChange={(e) => setClientName(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="address">Address:</label>
-          <input
-            type="text"
-            id="address"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="website">Website:</label>
-          <input
-            type="text"
-            id="website"
-            value={website}
-            onChange={(e) => setWebsite(e.target.value)}
-          />
-        </div>
-        <div>
-          <label htmlFor="notes">Notes:</label>
-          <textarea
-            id="notes"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-          />
-        </div>
-        <button type="submit">Create</button>
-      </form>
+    <div className={classes.root}>
+      <h1>Create Client</h1>
+      <Box className={classes.container}>
+        <form onSubmit={handleSubmit}>
+          <Box mb={2}>
+            <TextField
+              label="Client Name"
+              value={clientName}
+              onChange={handleClientNameChange}
+              className={classes.inputField}
+            />
+          </Box>
+          <Box mb={2}>
+            <TextField
+              label="Address"
+              value={address}
+              onChange={handleAddressChange}
+              className={classes.inputField}
+            />
+          </Box>
+          <Box mb={2}>
+            <TextField
+              label="Website"
+              value={website}
+              onChange={handleWebsiteChange}
+              className={classes.inputField}
+            />
+          </Box>
+          <Box mb={2}>
+            <TextField
+              label="Notes"
+              value={notes}
+              onChange={handleNotesChange}
+              className={classes.inputField}
+            />
+          </Box>
+          <Box display="flex" justifyContent="center" mt={2}>
+            <Button variant="outlined" type="submit">
+              Create
+            </Button>
+          </Box>
+        </form>
+      </Box>
+      <Box flexGrow={1} /> {/* Spacer to push footer to the bottom */}
+      <div className={classes.footer}>
+        <h3>Phase ATS</h3>
+      </div>
     </div>
   );
 };
 
 export default CreateClient;
-

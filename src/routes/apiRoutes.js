@@ -1,6 +1,5 @@
 const express = require('express');
 const { Pool } = require('pg');
-
 const router = express.Router();
 
 // Create a connection pool to the PostgreSQL database
@@ -42,10 +41,10 @@ router.get('/candidates/:id', (req, res) => {
 
 // Create a new candidate
 router.post('/candidates', (req, res) => {
-  const { first_name, last_name, address, phone, email, notes, type, specialization, skills } = req.body;
+  const { first_name, last_name, address, phone, email, notes, type, specialization, skills, file_path } = req.body;
   pool.query(
-    'INSERT INTO candidates (first_name, last_name, address, phone, email, notes, type, specialization, skills) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
-    [first_name, last_name, address, phone, email, notes, type, specialization, skills],
+    'INSERT INTO candidates (first_name, last_name, address, phone, email, notes, type, specialization, skills, file_path) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *',
+    [first_name, last_name, address, phone, email, notes, type, specialization, skills, file_path],
     (error, result) => {
       if (error) {
         console.error('Error executing query:', error);
@@ -60,10 +59,10 @@ router.post('/candidates', (req, res) => {
 // Update an existing candidate
 router.put('/candidates/:id', (req, res) => {
   const { id } = req.params;
-  const { first_name, last_name, address, phone, email, notes, type, specialization, skills } = req.body;
+  const { first_name, last_name, address, phone, email, notes, type, specialization, skills, file_path } = req.body;
   pool.query(
-    'UPDATE candidates SET first_name = $1, last_name = $2, address = $3, phone = $4, email = $5, notes = $6, type = $7, specialization = $8, skills = $9 WHERE candidate_id = $10 RETURNING *',
-    [first_name, last_name, address, phone, email, notes, type, specialization, skills, id],
+    'UPDATE candidates SET first_name = $1, last_name = $2, address = $3, phone = $4, email = $5, notes = $6, type = $7, specialization = $8, skills = $9, file_path = $10 WHERE candidate_id = $11 RETURNING *',
+    [first_name, last_name, address, phone, email, notes, type, specialization, skills, file_path, id],
     (error, result) => {
       if (error) {
         console.error('Error executing query:', error);
@@ -77,12 +76,11 @@ router.put('/candidates/:id', (req, res) => {
   );
 });
 
-
 // Delete a candidate
 router.delete('/candidates/:id', (req, res) => {
   const { id } = req.params;
-  pool.query('DELETE FROM candidates WHERE candidate_id = $1', 
-    [id], 
+  pool.query('DELETE FROM candidates WHERE candidate_id = $1',
+    [id],
     (error, result) => {
       if (error) {
         console.error('Error executing query:', error);
@@ -95,7 +93,6 @@ router.delete('/candidates/:id', (req, res) => {
     }
   );
 });
-
 
 // Retrieve all jobs
 router.get('/jobs', (req, res) => {
@@ -161,24 +158,6 @@ router.put('/jobs/:id', (req, res) => {
     }
   );
 });
-// ...
-
-// Create a new job
-router.post('/jobs', (req, res) => {
-  const { job_title, description, location, requirements } = req.body;
-  pool.query(
-    'INSERT INTO jobs (job_title, description, location, requirements) VALUES ($1, $2, $3, $4) RETURNING *',
-    [job_title, description, location, requirements],
-    (error, result) => {
-      if (error) {
-        console.error('Error executing query:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-      } else {
-        res.status(201).json(result.rows[0]);
-      }
-    }
-  );
-});
 
 // Delete a job
 router.delete('/jobs/:id', (req, res) => {
@@ -197,31 +176,6 @@ router.delete('/jobs/:id', (req, res) => {
     }
   );
 });
-
-
-// ...
-
-// Update an existing job
-router.put('/jobs/:id', (req, res) => {
-  const { id } = req.params;
-  const { job_title, description, location, requirements } = req.body;
-  pool.query(
-    'UPDATE jobs SET job_title = $1, description = $2, location = $3, requirements = $4 WHERE job_id = $5 RETURNING *',
-    [job_title, description, location, requirements, id],
-    (error, result) => {
-      if (error) {
-        console.error('Error executing query:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-      } else if (result.rows.length === 0) {
-        res.status(404).json({ error: 'Job not found' });
-      } else {
-        res.status(200).json(result.rows[0]);
-      }
-    }
-  );
-});
-
-// ...
 
 // Retrieve all clients
 router.get('/clients', (req, res) => {
@@ -302,8 +256,6 @@ router.delete('/clients/:id', (req, res) => {
     }
   });
 });
-
-
 
 // Retrieve all groups
 router.get('/groups', (req, res) => {
@@ -504,4 +456,46 @@ router.get('/candidategroups', (req, res) => {
   });
 });
 
+// Create a new candidategroups entry
+router.post('/candidategroups', (req, res) => {
+  const { candidate_id, group_id } = req.body;
+  pool.query(
+    'INSERT INTO candidategroups (candidate_id, group_id) VALUES ($1, $2) RETURNING *',
+    [candidate_id, group_id],
+    (error, result) => {
+      if (error) {
+        console.error('Error executing query:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+        res.status(201).json(result.rows[0]);
+      }
+    }
+  );
+});
+
+// GET route for displaying group details
+router.get('/groupdetails/:id', async (req, res) => {
+  const groupId = req.params.id;
+
+  try {
+    const group = await Group.findById(groupId);
+
+    if (!group) {
+      return res.status(404).send('Group not found');
+    }
+   
+    // Retrieve the candidates belonging to the group
+    const candidates = await Candidate.find({ group: groupId });
+
+    res.render('groupdetails', { group, candidates });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// ...
+
 module.exports = router;
+
+// ... (remaining routes)

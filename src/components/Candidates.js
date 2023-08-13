@@ -11,23 +11,82 @@ import {
   TableBody,
   Checkbox,
   Dialog,
+  Box,
   DialogTitle,
   DialogContent,
   DialogActions,
-  FormControlLabel,
-  Radio,
   Snackbar,
+  Alert,
 } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+
+const useStyles = makeStyles((theme) => ({
+  inputField: {
+    width: '100%',
+  },
+  root: {
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    backgroundColor: 'black',
+    color: 'white',
+    fontFamily: 'Arial',
+    padding: '1rem',
+    '& .MuiInputBase-root': {
+      color: 'white',
+    },
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': {
+        borderColor: 'white',
+      },
+    },
+    '& .MuiInputLabel-root': {
+      color: 'white',
+      textAlign: 'center',
+    },
+    '& .MuiSelect-root': {
+      color: 'white',
+    },
+    '& .MuiCheckbox-colorPrimary.Mui-checked': {
+      color: 'white',
+    },
+
+checkboxCell: {
+    color: 'white',
+  },
+
+    textAlign: 'center', // Center-align the "Create Job" title
+  },
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexGrow: 1,
+    marginBottom: '1rem',
+    '& > *': {
+      marginBottom: '1rem', // Add margin between each input field
+    },
+  },
+  footer: {
+    backgroundColor: 'black',
+    color: 'white',
+    textAlign: 'center',
+    padding: '1rem',
+  },
+}));
 
 const Candidates = () => {
+  const classes = useStyles();
   const [candidates, setCandidates] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCandidates, setSelectedCandidates] = useState([]);
-  const [selectedGroupIds, setSelectedGroupIds] = useState([]); // Updated state for multiple group selection
+  const [selectedGroupIds, setSelectedGroupIds] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [groupOptions, setGroupOptions] = useState([]);
   const [showAddButton, setShowAddButton] = useState(false);
-
+  const [showSaveButton, setShowSaveButton] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
@@ -54,6 +113,11 @@ const Candidates = () => {
     fetchGroupOptions();
   }, []);
 
+  useEffect(() => {
+    setShowAddButton(selectedCandidates.length > 0);
+    setShowSaveButton(selectedGroupIds.length > 0);
+  }, [selectedCandidates, selectedGroupIds]);
+
   const handleSearchQueryChange = (e) => {
     const query = e.target.value;
     setSearchQuery(query);
@@ -63,23 +127,24 @@ const Candidates = () => {
     setSearchQuery('');
   };
 
-  const handleCandidateSelection = (candidateId) => {
+  const handleCandidateSelection = (candidate_id) => {
     setSelectedCandidates((prevSelectedCandidates) => {
-      if (prevSelectedCandidates.includes(candidateId)) {
-        return prevSelectedCandidates.filter((id) => id !== candidateId);
+      if (prevSelectedCandidates.includes(candidate_id)) {
+        return prevSelectedCandidates.filter((id) => id !== candidate_id);
       } else {
-        return [...prevSelectedCandidates, candidateId];
+        return [...prevSelectedCandidates, candidate_id];
       }
     });
   };
 
-  const handleGroupSelection = (groupId) => {
-    const updatedSelectedGroupIds = selectedGroupIds.includes(groupId)
-      ? selectedGroupIds.filter((id) => id !== groupId)
-      : [...selectedGroupIds, groupId];
-  
-    setSelectedGroupIds(updatedSelectedGroupIds);
-    setShowAddButton(updatedSelectedGroupIds.length > 0);
+  const handleGroupSelection = (group_id) => {
+    setSelectedGroupIds((prevSelectedGroupIds) => {
+      if (prevSelectedGroupIds.includes(group_id)) {
+        return prevSelectedGroupIds.filter((id) => id !== group_id);
+      } else {
+        return [...prevSelectedGroupIds, group_id];
+      }
+    });
   };
 
   const handleDeleteCandidates = async () => {
@@ -111,142 +176,239 @@ const Candidates = () => {
     setOpenDialog(true);
   };
 
-  const handleDialogClose = () => {
+  const handleCloseDialog = () => {
     setOpenDialog(false);
-    setSelectedGroupIds([]);
   };
 
-  const handleAddToGroupSubmit = async () => {
+
+
+
+
+
+  
+  const handleSaveGroups = async () => {
     try {
-      const payload = {
-        candidate_ids: selectedCandidates,
-        group_ids: selectedGroupIds, // Updated payload with selected group IDs
-      };
-
-      await axios.post('http://localhost:8000/api/candidategroups', payload);
-
+      for (const candidateId of selectedCandidates) {
+        for (const groupId of selectedGroupIds) {
+          const payload = {
+            candidate_id: candidateId,
+            group_id: groupId,
+          };
+          await axios.post('http://localhost:8000/api/candidategroups', payload);
+        }
+      }
+  
       setSelectedCandidates([]);
       setSelectedGroupIds([]);
       setOpenDialog(false);
-      setSnackbarMessage('Selected candidates added to the groups successfully.');
+      setSnackbarMessage('Candidates added to groups successfully.');
       setOpenSnackbar(true);
     } catch (error) {
-      console.error('Error adding candidates to the groups:', error);
-      setSnackbarMessage('Error adding candidates to the groups. Please try again.');
+      console.error('Error adding candidates to groups:', error);
+      setSnackbarMessage('Error adding candidates to groups. Please try again.');
       setOpenSnackbar(true);
     }
   };
+  
+  
 
   const handleSnackbarClose = () => {
     setOpenSnackbar(false);
   };
 
-  const filteredCandidates = candidates.filter((candidate) => {
-    const lowerCaseQuery = searchQuery.toLowerCase();
-    const fieldsToSearch = [
-      'first_name',
-      'last_name',
-      'address',
-      'phone',
-      'email',
-      'notes',
-      'type',
-      'specialization',
-      'skills',
-    ];
+  const filteredCandidates = candidates.filter(
+    (candidate) =>
+      candidate.first_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      candidate.last_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      candidate.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      candidate.phone.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      candidate.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    candidate.notes.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    candidate.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    candidate.specialization.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    candidate.skills.toLowerCase().includes(searchQuery.toLowerCase())
+   
+  );
 
-    return fieldsToSearch.some((field) => {
-      const fieldValue = candidate[field] || '';
-      return fieldValue.toLowerCase().includes(lowerCaseQuery);
-    });
-  });
+  console.log('Candidates:', candidates);
+  console.log('Search Query:', searchQuery);
+  console.log('Selected Candidates:', selectedCandidates);
+  console.log('Selected Group IDs:', selectedGroupIds);
+  console.log('Group Options:', groupOptions);
 
   return (
-    <div>
-      <h2>Candidates</h2>
-      <div>
-        <TextField label="Candidate Quick Search" value={searchQuery} onChange={handleSearchQueryChange} />
-        <Button variant="outlined" onClick={handleClearSearch}>
-          Clear
-        </Button>
-        <Button variant="contained" onClick={handleDeleteCandidates} disabled={selectedCandidates.length === 0}>
-          Delete Selected
-        </Button>
-        {selectedCandidates.length > 0 && (
-          <Button variant="contained" onClick={handleAddToGroup}>
-            Add to Group
-          </Button>
-        )}
-        <Link to="/createcandidate">Add Candidate</Link>
-      </div>
-      <Table>
+    <div className={classes.root}>
+      <h1>Candidates</h1>
+      <Box display="flex" justifyContent="center">
+      <TextField
+        label="Search"
+        value={searchQuery}
+        onChange={handleSearchQueryChange}
+        size="small"
+        variant="outlined"
+        sx={{ width: '50%', marginBottom: '1rem' }}
+      />
+      </Box>
+      
+      <Box display="flex" justifyContent="space-between" mt={2}>
+  <Button
+    variant="outlined"
+    onClick={handleClearSearch}
+    className={classes.clearButton}
+    sx={{ width: '200px', marginRight: '1rem' }}
+  >
+    Clear Search
+  </Button>
+
+  <Button
+    variant="outlined"
+    component={Link}
+    to="/createcandidate"
+    className={classes.addButton}
+    sx={{ width: '200px', marginRight: '1rem', marginLeft: '1rem' }}
+  >
+    Add Candidate
+  </Button>
+
+  <Button
+    variant="outlined"
+    component={Link}
+    to="/"
+    className={classes.addButton}
+    sx={{ width: '200px', marginLeft: '1rem' }}
+  >
+    Home
+  </Button>
+</Box>
+
+<Box display="flex" justifyContent="center" mt={2}></Box>
+      
+      <Button
+  variant="contained"
+  onClick={handleDeleteCandidates}
+  className={classes.addButton}
+  disabled={selectedCandidates.length === 0}
+>
+  Delete Selected Candidates
+</Button>
+
+
+
+
+      <Table className={classes.table}>
         <TableHead>
           <TableRow>
             <TableCell>Candidate ID</TableCell>
-            <TableCell>First Name</TableCell>
-            <TableCell>Last Name</TableCell>
-            <TableCell>Address</TableCell>
-            <TableCell>Phone</TableCell>
-            <TableCell>Email</TableCell>
-            <TableCell>Notes</TableCell>
-            <TableCell>Type</TableCell>
-            <TableCell>Specialization</TableCell>
-            <TableCell>Skills</TableCell>
-            <TableCell>Select</TableCell>
+      <TableCell>Name</TableCell>
+      <TableCell>Email</TableCell>
+      <TableCell>Phone</TableCell>
+      <TableCell>Address</TableCell>
+      <TableCell>Notes</TableCell>
+      <TableCell>Type</TableCell>
+      <TableCell>Specialization</TableCell>
+      <TableCell>Skills</TableCell>
+      <TableCell>Actions</TableCell>
+
+            <TableCell>
+              <Button
+                variant="outlined"
+                onClick={handleAddToGroup}
+                disabled={!showAddButton}
+              >
+                Add to Group
+              </Button>
+            </TableCell>
           </TableRow>
         </TableHead>
+       
+
+       
+
         <TableBody>
-          {filteredCandidates.map((candidate) => (
-            <TableRow key={candidate.candidate_id}>
-              <TableCell>
-                <Link to={`/candidates/${candidate.candidate_id}`}>{candidate.candidate_id}</Link>
-              </TableCell>
-              <TableCell>{candidate.first_name}</TableCell>
-              <TableCell>{candidate.last_name}</TableCell>
-              <TableCell>{candidate.address}</TableCell>
-              <TableCell>{candidate.phone}</TableCell>
-              <TableCell>{candidate.email}</TableCell>
-              <TableCell>{candidate.notes}</TableCell>
-              <TableCell>{candidate.type}</TableCell>
-              <TableCell>{candidate.specialization || ''}</TableCell>
-              <TableCell>{candidate.skills || ''}</TableCell>
-              <TableCell>
+  {filteredCandidates.map((candidate) => (
+    <TableRow key={candidate.candidate_id}>
+      <TableCell>
+        <Link to={`/candidates/${candidate.candidate_id}`}>
+          {candidate.candidate_id}
+        </Link>
+      </TableCell>
+      <TableCell style={{ color: 'white' }}>{candidate.first_name} {candidate.last_name}</TableCell>
+      <TableCell style={{ color: 'white' }}>{candidate.email}</TableCell>
+      <TableCell style={{ color: 'white' }}>{candidate.phone}</TableCell>
+      <TableCell style={{ color: 'white' }}>{candidate.address}</TableCell>
+      <TableCell style={{ color: 'white' }}>{candidate.notes}</TableCell>
+      <TableCell style={{ color: 'white' }}>{candidate.type}</TableCell>
+      <TableCell style={{ color: 'white' }}>{candidate.specialization}</TableCell>
+      <TableCell style={{ color: 'white' }}>{candidate.skills}</TableCell>
+      <TableCell>
+        <Button
+          component={Link}
+          to={`/candidates/${candidate.candidate_id}`}
+          variant="outlined"
+          sx={{ marginRight: '0.5rem' }}
+        >
+          Edit
+        </Button>
+      </TableCell>
+      <TableCell>
                 <Checkbox
                   checked={selectedCandidates.includes(candidate.candidate_id)}
                   onChange={() => handleCandidateSelection(candidate.candidate_id)}
+                  // Add the custom style for the checkboxes
+                  style={{ color: 'white' }}
                 />
               </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
+    </TableRow>
+  ))}
+</TableBody>
+
+
       </Table>
-      <Dialog open={openDialog} onClose={handleDialogClose}>
-        <DialogTitle>Add Selected Candidates to Group</DialogTitle>
-        <DialogContent>
-          {groupOptions.map((group) => (
-            <FormControlLabel
-              key={group.group_id}
-              control={
-                <Checkbox
-                  checked={selectedGroupIds.includes(group.group_id)}
-                  onChange={() => handleGroupSelection(group.group_id)}
-                />
-              }
-              label={group.name}
-            />
-          ))}
+    
+      
+
+
+
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
+        <DialogTitle>Add Candidates to Groups</DialogTitle>
+        <DialogContent className={classes.dialogContent}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Select</TableCell>
+                <TableCell>Group Name</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {groupOptions.map((group) => (
+                <TableRow key={group.group_id}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedGroupIds.includes(group.group_id)}
+                      onChange={() => handleGroupSelection(group.group_id)}
+                    />
+                  </TableCell>
+                  <TableCell>{group.name}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDialogClose}>Cancel</Button>
-          <Button onClick={handleAddToGroupSubmit}>Add</Button>
+          <Button onClick={handleCloseDialog}>Cancel</Button>
+          <Button onClick={handleSaveGroups} disabled={!showSaveButton} autoFocus>
+            Save
+          </Button>
         </DialogActions>
       </Dialog>
-      <Snackbar open={openSnackbar} autoHideDuration={5000} onClose={handleSnackbarClose} message={snackbarMessage} />
+
+      <Snackbar open={openSnackbar} autoHideDuration={5000} onClose={handleSnackbarClose}>
+        <Alert onClose={handleSnackbarClose} severity="success" sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
 
 export default Candidates;
-
-
-

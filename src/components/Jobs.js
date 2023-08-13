@@ -1,11 +1,88 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import {
+  TextField,
+  Button,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Checkbox,
+  Dialog,
+  Box,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Snackbar,
+  Alert,
+} from '@mui/material';
+import { makeStyles } from '@mui/styles';
+
+const useStyles = makeStyles((theme) => ({
+  inputField: {
+    width: '100%',
+  },
+  root: {
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    backgroundColor: 'black',
+    color: 'white',
+    fontFamily: 'Arial',
+    padding: '1rem',
+    '& .MuiInputBase-root': {
+      color: 'white',
+    },
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': {
+        borderColor: 'white',
+      },
+    },
+    '& .MuiInputLabel-root': {
+      color: 'white',
+      textAlign: 'center',
+    },
+    '& .MuiSelect-root': {
+      color: 'white',
+    },
+    '& .MuiCheckbox-colorPrimary.Mui-checked': {
+      color: 'white',
+    },
+
+checkboxCell: {
+    color: 'white',
+  },
+
+    textAlign: 'center', // Center-align the "Create Job" title
+  },
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexGrow: 1,
+    marginBottom: '1rem',
+    '& > *': {
+      marginBottom: '1rem', // Add margin between each input field
+    },
+  },
+  footer: {
+    backgroundColor: 'black',
+    color: 'white',
+    textAlign: 'center',
+    padding: '1rem',
+  },
+}));
 
 const Jobs = () => {
+  const classes = useStyles();
   const [jobs, setJobs] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedJobs, setSelectedJobs] = useState([]);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -46,17 +123,16 @@ const Jobs = () => {
     }
 
     try {
-      // Delete the selected jobs
       await Promise.all(
         selectedJobs.map(async (jobId) => {
           await axios.delete(`http://localhost:8000/api/jobs/${jobId}`);
         })
       );
-      // Refresh the job list
+
       const response = await axios.get('http://localhost:8000/api/jobs');
       setJobs(response.data);
-      // Clear selected jobs
       setSelectedJobs([]);
+      setOpenSnackbar(true);
     } catch (error) {
       console.error('Error deleting jobs:', error);
     }
@@ -75,58 +151,112 @@ const Jobs = () => {
   });
 
   return (
-    <div>
-      <h2>Jobs</h2>
-      <div>
-        <label htmlFor="searchQuery">Search Jobs:</label>
-        <input
-          type="text"
-          id="searchQuery"
-          value={searchQuery}
-          onChange={handleSearchQueryChange}
-        />
-        <button onClick={handleClearSearch}>Clear</button>
-        <button onClick={handleDeleteJobs} disabled={selectedJobs.length === 0}>
-          Delete Selected
-        </button>
-        <Link to="/createjob">Add Job</Link>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Job ID</th>
-            <th>Title</th>
-            <th>Description</th>
-            <th>Location</th>
-            <th>Requirements</th>
-            <th>Select</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredJobs.map((job) => (
-            <tr key={job.job_id}>
-              <td>
-              <Link to={`/jobs/${job.job_id}`}>{job.job_id}</Link>
+    <div className={classes.root}>
+      <h1>Jobs</h1>
+      <Box display="flex" justifyContent="center">
+      <TextField
+        label="Search"
+        value={searchQuery}
+        onChange={handleSearchQueryChange}
+        size="small"
+        variant="outlined"
+        sx={{ width: '50%', marginBottom: '1rem' }}
+      />
+      </Box>
 
-              </td>
-              <td>{job.job_title}</td>
-              <td>{job.description}</td>
-              <td>{job.location}</td>
-              <td>{job.requirements}</td>
-              <td>
-                <input
-                  type="checkbox"
+   <Box display="flex" justifyContent="space-between" mt={2}>
+   <Button
+     variant="outlined"
+     onClick={handleClearSearch}
+     className={classes.clearButton}
+     sx={{ width: '200px', marginRight: '1rem' }}
+   >
+     Clear Search
+   </Button>
+
+   <Button
+    variant="outlined"
+    component={Link}
+    to="/createjob"
+    className={classes.addButton}
+    sx={{ width: '200px', marginRight: '1rem', marginLeft: '1rem' }}
+  >
+    Add Candidate
+  </Button>
+
+   <Button
+    variant="outlined"
+    component={Link}
+    to="/"
+    className={classes.addButton}
+    sx={{ width: '200px', marginLeft: '1rem' }}
+  >
+    Home
+  </Button>
+</Box>
+      
+<Box display="flex" justifyContent="center" mt={2}></Box>
+      
+      
+      
+      
+      
+      <Button
+        variant="contained"
+        onClick={handleDeleteJobs}
+        disabled={selectedJobs.length === 0}
+      >
+        Delete Selected Jobs
+      </Button>
+
+
+
+
+
+       
+
+      <Table className={classes.table}>
+        <TableHead>
+          <TableRow>
+            <TableCell>Job ID</TableCell>
+            <TableCell>Title</TableCell>
+            <TableCell>Description</TableCell>
+            <TableCell>Location</TableCell>
+            <TableCell>Requirements</TableCell>
+            <TableCell>Select</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {filteredJobs.map((job) => (
+            <TableRow key={job.job_id}>
+              <TableCell>
+                <Link to={`/jobs/${job.job_id}`}>{job.job_id}</Link>
+              </TableCell>
+              <TableCell style={{ color: 'white' }}>{job.job_title}</TableCell>
+              <TableCell style={{ color: 'white' }}>{job.description}</TableCell>
+              <TableCell style={{ color: 'white' }}>{job.location}</TableCell>
+              <TableCell style={{ color: 'white' }}>{job.requirements}</TableCell>
+              <TableCell>
+                <Checkbox
                   checked={selectedJobs.includes(job.job_id)}
                   onChange={() => handleJobSelection(job.job_id)}
+                  style={{ color: 'white' }}
                 />
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={5000}
+        onClose={() => setOpenSnackbar(false)}
+        sx={{ color: 'white' }}
+      >
+        Jobs deleted successfully.
+      </Snackbar>
     </div>
   );
 };
 
 export default Jobs;
-
